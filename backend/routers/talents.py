@@ -147,8 +147,6 @@ async def set_status(talent_id: str, payload: StatusUpdate, p: Principal = Depen
     doc["status"] = payload.status
     return to_talent(doc)
 
-
-# ---- activities & numbers ----------------------------------------------------
 def flatten_activities(talents: list[Talent]) -> list[ActivityListing]:
     return [
         ActivityListing(
