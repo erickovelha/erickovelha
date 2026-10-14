@@ -1,0 +1,88 @@
+{
+  "iteration": 1,
+  "summary": "4 backend test files (7 pytest functions, all passing) and 7 named browser checks passed, covering all 6 acceptance_matrix criteria for Bloco do Beco.",
+  "passed": 11,
+  "failed": 0,
+  "retest_needed": false,
+  "bugs": [],
+  "action_items": [],
+  "checks": [
+    {
+      "criterion": "Cadastro de novos artistas usa Google OAuth (Emergent) - anonymous gate",
+      "name": "cadastrar-anonymous-gated",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Anonymous visit to /cadastrar shows google-signin-card, talent-form has 0 count."
+    },
+    {
+      "criterion": "Cadastro de novos artistas usa Google OAuth (Emergent) - API gating & mass-assignment",
+      "name": "test_tscheck_oauth_signup.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /api/talents no-auth -> 401. With Bearer session token, POST /api/talents (body sends status=approved, owner_id=hacker) -> 201 with status=pending and owner_id=<real session user>, confirming server-side stamping ignores client fields."
+    },
+    {
+      "criterion": "Administrador precisa aprovar o artista - visibility/ownership/role rules",
+      "name": "test_tscheck_admin_approval.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "Pending talent absent from GET /api/talents; GET /api/talents/{id} 404 anonymous and 404 for a second unrelated user; 200 for owner (status=pending); owner PATCH /status -> 403; admin_client PATCH /status -> 200 approved; then GET /api/talents includes it and GET /api/talents/{id} -> 200 anonymous."
+    },
+    {
+      "criterion": "Administrador precisa aprovar o artista - owner sees pending badge",
+      "name": "my-profiles-shows-pending-badge",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Artist session cookie injected; /meus-perfis shows my-profile-{id} with status-badge-pending for a freshly created API fixture talent."
+    },
+    {
+      "criterion": "Administrador precisa aprovar o artista - admin approval UI makes it public",
+      "name": "admin-approve-publishes-profile",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Admin password login; Aprovações tab shows admin-pending-{id}; clicking Aprovar removes it from pending list; GET /api/talents/{id} via page.request returns status=approved; /talentos shows talent-card-{id}. Fixture talent + session deleted after test."
+    },
+    {
+      "criterion": "Dashboard dentro do admin - API auth",
+      "name": "test_tscheck_admin_dashboard_api.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "GET /api/stats anonymous -> 401, admin_client -> 200 with total_talents/pending_talents fields. POST /api/ai/report anonymous -> 401, admin_client -> 200 (60s timeout for Claude SSE-backed report)."
+    },
+    {
+      "criterion": "Dashboard dentro do admin - no public route, tab shows counters",
+      "name": "admin-dashboard-tab-and-no-public-route",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "GET /painel-dados renders NotFound page (no route); nav has 0 links to /painel-dados; admin /admin tab 'Painel de dados' renders counters (Talentos, Atividades, Mestres, Aguardando aprovação) and category chart."
+    },
+    {
+      "criterion": "Filtros em cascata",
+      "name": "cascade-filters-talentos",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "On /talentos selecting Categoria=Música then opening Especialidade produced a different option set than Categoria=Costura; after category change, Especialidade select reset to 'Todas'; Limpar filtros control cleared selection."
+    },
+    {
+      "criterion": "Filtro de data para eventos e atividades",
+      "name": "atividades-date-filter-presets",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "/atividades default count 16; 'Hoje' preset reduced count to 1 (matches seeded 'Ateliê aberto de pintura' dated today) and is < all-dates count; custom date range (today..+30d) count >= today count."
+    },
+    {
+      "criterion": "Filtro de data para eventos e atividades - API",
+      "name": "test_tscheck_date_filter_api.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "GET /api/today returns ISO date within 1 day of UTC now; GET /api/activities items all carry a `date` key (ISO string or null for recurring)."
+    },
+    {
+      "criterion": "Admin login & management",
+      "name": "admin-talentos-filter-edit-delete",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Password beco2026 login succeeds; Talentos tab status filter 'pending' shows fixture row, 'approved' filter hides it; edit dialog renames the fixture and row reflects new name; delete removes the row; logout returns to admin-login-card. Fixture talent + session cleaned up after test."
+    }
+  ]
+}
